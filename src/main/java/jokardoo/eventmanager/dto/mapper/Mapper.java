@@ -2,16 +2,26 @@ package jokardoo.eventmanager.dto.mapper;
 
 import java.util.List;
 
-// E - entity
+// M - model
 // D - DTO
-public interface Mapper<E, D> {
+//
+public interface Mapper<M, D, E> {
 
-    E toEntity(D dto);
+    M dtoToModel(D dto);
 
-    D toDto(E entity);
+    D modelToDto(M model);
 
-    List<E> toEntity(List<D> dtoList);
+    List<M> dtoToModel(List<D> dtoList);
 
-    List<D> toDto(List<E> entityList);
+    List<D> modelToDto(List<M> modelList);
+
+    E modelToEntity(M model);
+
+    M entityToModel(E entity);
+
+    List<E> modelToEntity(List<M> modelList);
+
+    List<M> entityToModel(List<E> entityList);
+
 
 }

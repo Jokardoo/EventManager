@@ -1,17 +1,18 @@
 package jokardoo.eventmanager.dto.mapper.location;
 
 import jokardoo.eventmanager.domain.location.EventLocation;
+import jokardoo.eventmanager.domain.location.EventLocationEntity;
 import jokardoo.eventmanager.dto.location.EventLocationDto;
 import jokardoo.eventmanager.dto.mapper.Mapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventLocationMapper implements Mapper<EventLocation, EventLocationDto> {
+public class EventLocationMapper implements Mapper<EventLocation, EventLocationDto, EventLocationEntity> {
 
     // TODO mapstruct
     @Override
-    public EventLocation toEntity(EventLocationDto dto) {
+    public EventLocation dtoToModel(EventLocationDto dto) {
         EventLocation eventLocation = new EventLocation();
 
         eventLocation.setId(dto.getId());
@@ -25,7 +26,7 @@ public class EventLocationMapper implements Mapper<EventLocation, EventLocationD
     }
 
     @Override
-    public EventLocationDto toDto(EventLocation entity) {
+    public EventLocationDto modelToDto(EventLocation entity) {
         EventLocationDto eventLocationDto = new EventLocationDto();
 
         eventLocationDto.setId(entity.getId());
@@ -39,22 +40,43 @@ public class EventLocationMapper implements Mapper<EventLocation, EventLocationD
     }
 
     @Override
-    public List<EventLocation> toEntity(List<EventLocationDto> dtoList) {
+    public List<EventLocation> dtoToModel(List<EventLocationDto> dtoList) {
         List<EventLocation> eventLocationList = new ArrayList<>();
 
         for (EventLocationDto dto : dtoList) {
-            eventLocationList.add(toEntity(dto));
+            eventLocationList.add(dtoToModel(dto));
         }
         return eventLocationList;
     }
 
     @Override
-    public List<EventLocationDto> toDto(List<EventLocation> entityList) {
+    public List<EventLocationDto> modelToDto(List<EventLocation> entityList) {
         List<EventLocationDto> eventLocationDtoList = new ArrayList<>();
 
         for (EventLocation eventLocation : entityList) {
-            eventLocationDtoList.add(toDto(eventLocation));
+            eventLocationDtoList.add(modelToDto(eventLocation));
         }
         return eventLocationDtoList;
+    }
+
+    //TODO реализовать
+    @Override
+    public EventLocationEntity modelToEntity(EventLocation model) {
+        return null;
+    }
+
+    @Override
+    public EventLocation entityToModel(EventLocationEntity entity) {
+        return null;
+    }
+
+    @Override
+    public List<EventLocationEntity> modelToEntity(List<EventLocation> modelList) {
+        return null;
+    }
+
+    @Override
+    public List<EventLocation> entityToModel(List<EventLocationEntity> entityList) {
+        return null;
     }
 }
