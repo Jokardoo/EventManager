@@ -45,7 +45,7 @@ public class JwtAuthenticationService {
 
        throw new IllegalArgumentException("Incorrect data!");
 
-//      END
+//       END
 
 //
 //        return tokenManager.generateToken(signUpRequest.getLogin());
