@@ -1,17 +1,14 @@
 package jokardoo.eventmanager.service;
 
-import jakarta.annotation.PostConstruct;
 import jokardoo.eventmanager.domain.user.Role;
 import jokardoo.eventmanager.domain.user.User;
 import jokardoo.eventmanager.domain.user.UserEntity;
 import jokardoo.eventmanager.dto.mapper.user.UserMapper;
 import jokardoo.eventmanager.exceptions.IncorrectRoleException;
 import jokardoo.eventmanager.repository.UserRepository;
-import jokardoo.eventmanager.service.utils.DefaultAccountCreator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    private final DefaultAccountCreator accountCreator;
 
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
