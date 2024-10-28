@@ -4,16 +4,20 @@ import jokardoo.eventmanager.domain.user.Role;
 import jokardoo.eventmanager.domain.user.User;
 import jokardoo.eventmanager.domain.user.UserEntity;
 import jokardoo.eventmanager.dto.mapper.Mapper;
+import jokardoo.eventmanager.dto.mapper.event.EventMapper;
 import jokardoo.eventmanager.dto.user.UserDto;
 import jokardoo.eventmanager.exceptions.IncorrectRoleException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class UserMapper implements Mapper<User, UserDto, UserEntity> {
 
+    private final EventMapper eventMapper = new EventMapper();
     // TODO mapstruct
     @Override
     public User dtoToModel(UserDto dto) {
@@ -77,7 +81,7 @@ public class UserMapper implements Mapper<User, UserDto, UserEntity> {
     public User entityToModel(UserEntity entity) {
         User user = new User();
 
-        user.setId(entity.getId());
+        user.setId(entity.getId() != null ? entity.getId() : null);
         user.setLogin(entity.getLogin());
         user.setPasswordHash(entity.getPasswordHash());
         user.setAge(entity.getAge());

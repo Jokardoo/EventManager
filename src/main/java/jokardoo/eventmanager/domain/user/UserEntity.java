@@ -3,7 +3,7 @@ package jokardoo.eventmanager.domain.user;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
-import org.hibernate.validator.constraints.UniqueElements;
+
 
 @Data
 @Entity
@@ -26,4 +26,6 @@ public class UserEntity {
     @Column(name = "age")
     @Positive
     private Integer age;
+
+
 }

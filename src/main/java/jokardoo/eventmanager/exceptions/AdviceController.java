@@ -2,7 +2,6 @@ package jokardoo.eventmanager.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,14 +19,7 @@ public class AdviceController {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessageResponse);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorMessageResponse> authenticationException(AccessDeniedException e) {
-        ErrorMessageResponse errorMessageResponse =
-                new ErrorMessageResponse("Authorization exception",
-                        "Insufficient access rights.",
-                        LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessageResponse);
-    }
+
 
     @ExceptionHandler(IncorrectRoleException.class)
     public ResponseEntity<ErrorMessageResponse> incorrectRoleException(IncorrectRoleException e) {

@@ -1,35 +1,44 @@
 package jokardoo.eventmanager.security.jwt;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jokardoo.eventmanager.domain.user.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
 public class JwtTokenManager {
-    private final JwtProperty jwtProperty;
 
-    public String generateToken(String login) {
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration}")
+    private Long expiration;
+
+    public String generateToken(String login, User user) {
+
+        Claims claims = Jwts.claims().setSubject(login);
+
+        claims.put("role", user.getRole().name());
+
         return Jwts
                 .builder()
-                .setSubject(login) //указываем, кому передается токен
-                .signWith(Keys.hmacShaKeyFor(jwtProperty.getSecret().getBytes()))
-//                .signWith(Keys.hmacShaKeyFor("dHN1eWl1b3l3YWV3ZXJ3ZHllcnVpYXdlaG5yeXdmamFzZGhuaWZub3lmd2V1aW9mYWVyd2NyYXNlc2RnYWdhZGdo".getBytes()))
+                .setClaims(claims) //указываем, кому передается токен
+                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtProperty.getExpiration()))
-//                .expiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .compact();
 
     }
 
     public String getLoginFromToken(String jwt) {
         String login = Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(jwtProperty.getSecret().getBytes()))
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
                 .build()
                 .parseClaimsJws(jwt)
                 .getBody()
@@ -37,4 +46,16 @@ public class JwtTokenManager {
 
         return login;
     }
+
+    public String getRoleFromToken(String jwt) {
+        String role = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+                .build()
+                .parseClaimsJws(jwt)
+                .getBody()
+                .get("role", String.class);
+
+        return role;
+    }
+
 }

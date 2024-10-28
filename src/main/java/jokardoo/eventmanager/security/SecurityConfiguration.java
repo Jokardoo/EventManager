@@ -23,9 +23,10 @@ import org.springframework.security.web.authentication.AnonymousAuthenticationFi
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomUserDetailsService customUserDetailsService;
 
-
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final JwtTokenFilter jwtTokenFilter;
 
     @Bean
@@ -41,20 +42,27 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorizeHttpRequest ->
                         authorizeHttpRequest
 
-//                                .requestMatchers(HttpMethod.DELETE, "/locations")
-//                                .hasAnyAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/locations")
+                                .hasAnyAuthority("USER, ADMIN")
 
-                                .requestMatchers(HttpMethod.PUT, "/locations")
+                                .requestMatchers(HttpMethod.DELETE, "/locations")
                                 .hasAnyAuthority("ADMIN")
 
-//                                .requestMatchers(HttpMethod.POST, "/locations")
-//                                .hasAnyAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/locations/{locationId}")
+                                .hasAnyAuthority("ADMIN, USER")
 
-//                                .requestMatchers(HttpMethod.GET, "/users/{id}")
-//                                .hasAnyAuthority("ADMIN")
 
-                                .requestMatchers(HttpMethod.POST, "/auth")
-                                .permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/locations/{locationId}")
+                                .hasAnyAuthority("ADMIN")
+
+                                .requestMatchers(HttpMethod.POST, "/locations")
+                                .hasAnyAuthority("ADMIN")
+
+
+
+
+                                .requestMatchers(HttpMethod.GET, "/users/{userId}")
+                                .hasAnyAuthority("ADMIN")
 
                                 .requestMatchers(HttpMethod.GET, "/swagger-ui/index.html#/")
                                 .permitAll()
@@ -65,13 +73,28 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/users/auth")
                                 .permitAll()
 
-                                .requestMatchers(HttpMethod.POST, "/users/auth")
-                                .permitAll()
+
+                                .requestMatchers(HttpMethod.POST, "/events")
+                                .hasAnyAuthority("USER")
+
+                                .requestMatchers(HttpMethod.PUT, "/events")
+                                .hasAnyAuthority("ADMIN", "USER")
+
+                                .requestMatchers(HttpMethod.POST, "/events/search")
+                                .hasAnyAuthority("ADMIN", "USER")
+
+                                .requestMatchers(HttpMethod.GET, "/events/my")
+                                .hasAnyAuthority("ADMIN", "USER")
+
+                                .requestMatchers(HttpMethod.POST, "/events/registration")
+                                .hasAnyAuthority("ADMIN", "USER")
+
 
                                 .anyRequest().authenticated())
-
                  .addFilterBefore(jwtTokenFilter, AnonymousAuthenticationFilter.class)
-//                .httpBasic(Customizer.withDefaults())
+                 .exceptionHandling((exceptionHandling) ->  exceptionHandling
+                         .accessDeniedHandler(customAccessDeniedHandler)
+                         .authenticationEntryPoint(authenticationEntryPoint))
                 .build();
     }
 

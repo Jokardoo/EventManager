@@ -1,12 +1,7 @@
 package jokardoo.eventmanager.security;
 
-import jokardoo.eventmanager.domain.user.Role;
 import jokardoo.eventmanager.domain.user.UserEntity;
-import jokardoo.eventmanager.dto.mapper.user.UserMapper;
 import jokardoo.eventmanager.repository.UserRepository;
-import jokardoo.eventmanager.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -31,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .build();
     }
 
-    @Autowired
+
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

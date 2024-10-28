@@ -2,16 +2,15 @@ package jokardoo.eventmanager.controller;
 
 import jakarta.validation.Valid;
 import jokardoo.eventmanager.domain.user.SignUpRequest;
+import jokardoo.eventmanager.domain.user.User;
 import jokardoo.eventmanager.dto.mapper.user.UserMapper;
 import jokardoo.eventmanager.dto.user.UserDto;
 import jokardoo.eventmanager.security.jwt.JwtAuthenticationService;
 import jokardoo.eventmanager.security.jwt.JwtResponse;
 import jokardoo.eventmanager.service.UserService;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,9 +25,18 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDto> createUser(@RequestBody @Valid SignUpRequest signUpRequest) {
 
-        UserDto createdUser = userService.registerUser(signUpRequest);
+        User user = new User();
+        user.setLogin(signUpRequest.getLogin());
+        user.setPasswordHash(signUpRequest.getPassword());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(userMapper
+                        .modelToDto(
+                                userService.registerUser(user)
+                        )
+                );
     }
 
 
@@ -41,16 +49,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getById(@PathVariable Long id) {
+//    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getById(@PathVariable(name = "userId") Long id) {
 
         return ResponseEntity.ok(userMapper.modelToDto(userService.getById(id)));
     }
 
-    @GetMapping("/{login}")
-    public ResponseEntity<UserDto> getByLogin(@PathVariable String login) {
 
-        return ResponseEntity.ok(userMapper.modelToDto(userService.findByLogin(login)));
-    }
 }

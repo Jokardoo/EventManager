@@ -30,8 +30,8 @@ public class LocationController {
         return eventLocationMapper.modelToDto(eventLocationService.getAll());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EventLocationDto>  getById(@PathVariable(name = "id") Integer id) {
+    @GetMapping("/{locationId}")
+    public ResponseEntity<EventLocationDto>  getById(@PathVariable(name = "locationId") Integer id) {
         return ResponseEntity.status(HttpStatus.OK).body(eventLocationMapper.modelToDto(eventLocationService.getById(id))) ;
     }
 
@@ -46,11 +46,11 @@ public class LocationController {
         return ResponseEntity.ok(HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<HttpStatus> update(@RequestParam(name = "id") Integer id,
+    @PutMapping()
+    public ResponseEntity<HttpStatus> update(@RequestParam(name = "locationId") Integer id,
                                              @Valid @RequestBody EventLocationDto eventLocationDto) {
 
-        eventLocationService.update(id, eventLocationDto);
+        eventLocationService.update(id, eventLocationMapper.dtoToModel(eventLocationDto));
         return ResponseEntity.ok(HttpStatus.OK);
     }
 

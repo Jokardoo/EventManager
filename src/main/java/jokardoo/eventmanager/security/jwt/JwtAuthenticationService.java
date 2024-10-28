@@ -2,6 +2,7 @@ package jokardoo.eventmanager.security.jwt;
 
 import jokardoo.eventmanager.domain.user.SignUpRequest;
 import jokardoo.eventmanager.domain.user.UserEntity;
+import jokardoo.eventmanager.dto.mapper.user.UserMapper;
 import jokardoo.eventmanager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +18,8 @@ public class JwtAuthenticationService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     private final JwtTokenManager tokenManager;
+
+    private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
 
     public String authenticateUser(SignUpRequest signUpRequest) {
@@ -39,7 +42,7 @@ public class JwtAuthenticationService {
 
             if (passwordEncoder.matches(signUpRequest.getPassword(), userEntity.getPasswordHash())) {
                 System.out.println("Right password");
-                return tokenManager.generateToken(signUpRequest.getLogin());
+                return tokenManager.generateToken(signUpRequest.getLogin(), userMapper.entityToModel(userEntity));
             }
         }
 
