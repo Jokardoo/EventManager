@@ -2,14 +2,12 @@ package jokardoo.eventmanager.service;
 
 import jokardoo.eventmanager.domain.location.EventLocation;
 import jokardoo.eventmanager.domain.location.EventLocationEntity;
-import jokardoo.eventmanager.dto.location.EventLocationDto;
 import jokardoo.eventmanager.dto.mapper.location.EventLocationMapper;
 import jokardoo.eventmanager.repository.EventLocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +20,7 @@ public class EventLocationService {
     private final EventLocationMapper eventLocationMapper;
     private final EventLocationRepository eventLocationRepository;
 
-    @Transactional(readOnly = true)
+
     public List<EventLocation> getAll() {
         logger.info("INFO: Get all Location request started.");
         List<EventLocation> eventLocationList = new ArrayList<>();
@@ -39,15 +37,14 @@ public class EventLocationService {
         return eventLocationList;
     }
 
-    @Transactional(readOnly = true)
     public EventLocation getById(Integer id) {
 
         logger.info("INFO: Get Location BY id request started.");
 
         EventLocationEntity locationEntity = eventLocationRepository.findById(id)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("You can't delete event location with id = " + id
-                                + ", because it doesn't exist!"));
+                        new IllegalArgumentException("Location with id = " + id
+                                + " not found!"));
 
         return new EventLocation(
                 locationEntity.getId(),
@@ -59,9 +56,10 @@ public class EventLocationService {
 
     public void deleteById(Integer id) {
 
-        eventLocationRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("You can't delete event location with id = " + id
-                + ", because it doesn't exist!"));
-
+        if (!eventLocationRepository.existsById(id)) {
+            throw new IllegalArgumentException("You can't delete event location with id = " + id
+                    + ", because it doesn't exist!");
+        }
         eventLocationRepository.deleteById(id);
     }
 
@@ -78,13 +76,12 @@ public class EventLocationService {
 
 
 
-    public void update(Integer id, EventLocationDto eventLocationDto) {
+    public void update(Integer id, EventLocation eventLocation) {
         if (!eventLocationRepository.existsById(id)) {
             throw new IllegalArgumentException("You can't update event location with id = " + id
                     + ", because it doesn't exist!");
         }
 
-        EventLocation eventLocation = eventLocationMapper.dtoToModel(eventLocationDto);
         eventLocation.setId(id);
 
         save(eventLocation);

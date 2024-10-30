@@ -1,34 +1,51 @@
 package jokardoo.eventmanager.dto.event;
 
-import jokardoo.eventmanager.domain.event.EventStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class EventDto {
 
-    private int id;
 
+    private Long id;
+
+    @NotNull
+    @Size(min = 2, max = 100, message = "Event name size should be between 2 and 100 characters")
     private String name;
 
-    private int ownerId;
+    @NotNull(message = "Event must have an owner")
+    @Positive(message = "Owner id should be positive.")
+    private Long ownerId;
 
-    private int maxPlaces;
+    @Positive(message = "The number of seats should be positive!")
+    @NotNull(message = "The number of seats must be determined!")
+    private Integer maxPlaces;
 
-    private int occupiedPlaces;
+    @Positive (message = "The number of occupied places should be positive!")
+    @NotNull(message = "the number of occupied places can't be null!")
+    private Integer occupiedPlaces;
 
-    private Date date;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime date;
 
-    private double cost;
+    @Positive(message = "Cost should be positive!")
+    @NotNull(message = "Cost can't be null!")
+    private Integer cost;
 
     // в минутах
-    private int duration;
+    @Positive(message = "Duration should be positive!")
+    @NotNull(message = "Duration can't be null!")
+    private Integer duration;
 
-    private int locationId;
+    @NotNull(message = "Location id can't be null!")
+    @Positive(message = "Location id should be positive!")
+    private Long locationId;
 
-    private EventStatus status;
-
-
+    private String status;
 
 }
