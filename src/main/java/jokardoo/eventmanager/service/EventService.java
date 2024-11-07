@@ -68,7 +68,7 @@ public class EventService {
                         new IllegalArgumentException("Event with id = " + id + " not found!")));
     }
 
-    public Event save(Event event) {
+    public void save(Event event) {
 
         if (eventRepository.existsById(event.getId())) {
 
@@ -77,11 +77,7 @@ public class EventService {
 
             eventChangesSender.sendEvent(eventKafkaChangesCreator.eventToEventKafkaChanges(oldEvent, savedEvent));
 
-            return savedEvent;
         }
-        Event savedEvent = eventMapper.entityToModel(eventRepository.save(eventMapper.modelToEntity(event)));
-
-        return savedEvent;
     }
 
     public Event update(Event eventToUpdate, Long eventId) {
@@ -222,8 +218,5 @@ public class EventService {
         return eventMapper.entityToModel(eventRepository.findAll());
     }
 
-    public List<Long> getAllSubscriberId(Long id) {
-        return eventRepository.findAllSubscriberId(id);
-    }
 
 }
