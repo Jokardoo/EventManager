@@ -206,19 +206,15 @@ public class EventService {
             throw new IncorrectLocationCapacityException("This location cannot accommodate the number of people specified in the event");
         }
 
-        // Date check
-        try {
-            LocalDateTime eventDate = event.getDate();
-            LocalDateTime curDate = LocalDateTime.now();
 
-            if (eventDate.isBefore(curDate)) {
-                logger.warn("WARN: Incorrect date exception!");
-                throw new IncorrectDateException("The date of the event cannot be in the past tense!");
-            }
-        } catch (Exception e) {
+        LocalDateTime eventDate = event.getDate();
+        LocalDateTime curDate = LocalDateTime.now();
+
+        if (eventDate.isBefore(curDate)) {
             logger.warn("WARN: Incorrect date exception!");
-            throw new IncorrectDateException("Incorrect date form from event.");
+            throw new IncorrectDateException("The date of the event cannot be in the past tense!");
         }
+
 
     }
 
