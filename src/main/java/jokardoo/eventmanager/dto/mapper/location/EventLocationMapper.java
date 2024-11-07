@@ -4,10 +4,12 @@ import jokardoo.eventmanager.domain.location.EventLocation;
 import jokardoo.eventmanager.domain.location.EventLocationEntity;
 import jokardoo.eventmanager.dto.location.EventLocationDto;
 import jokardoo.eventmanager.dto.mapper.Mapper;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class EventLocationMapper implements Mapper<EventLocation, EventLocationDto, EventLocationEntity> {
 
     // TODO mapstruct

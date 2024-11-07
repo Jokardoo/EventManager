@@ -1,7 +1,8 @@
-package jokardoo.eventmanager.domain.event;
+package jokardoo.eventmanager.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Positive;
+import jokardoo.eventmanager.domain.event.EventStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -39,5 +40,7 @@ public class EventSearchRequestDto {
 
     private EventStatus status;
 
+    public EventSearchRequestDto() {
 
+    }
 }

@@ -25,6 +25,7 @@ public class JwtTokenManager {
         Claims claims = Jwts.claims().setSubject(login);
 
         claims.put("role", user.getRole().name());
+        claims.put("userId", user.getId());
 
         return Jwts
                 .builder()

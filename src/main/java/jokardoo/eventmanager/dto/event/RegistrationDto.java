@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
-public class EventRegistrationDto {
+public class RegistrationDto {
 
     @Positive(message = "Event id should be positive!")
     private Long eventId;

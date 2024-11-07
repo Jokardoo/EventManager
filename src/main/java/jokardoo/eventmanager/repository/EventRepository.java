@@ -41,5 +41,10 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
 
     List<EventEntity> findByOwnerId(Long id);
 
+    @Query("""
+            SELECT e.ownerId FROM EventEntity e 
+            """)
+    List<Long> findAllSubscriberId(@Param("eventId") Long eventId);
+
 
 }

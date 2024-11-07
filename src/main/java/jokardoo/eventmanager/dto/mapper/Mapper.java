@@ -2,9 +2,9 @@ package jokardoo.eventmanager.dto.mapper;
 
 import java.util.List;
 
-// M - model
+// M - Model
 // D - DTO
-//
+// E - Entity
 public interface Mapper<M, D, E> {
 
     M dtoToModel(D dto);

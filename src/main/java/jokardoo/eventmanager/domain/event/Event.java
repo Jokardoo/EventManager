@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class Event {
+public class Event implements Cloneable {
 
     private Long id;
 
@@ -28,4 +28,8 @@ public class Event {
 
     private EventStatus status;
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

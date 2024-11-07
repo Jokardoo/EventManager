@@ -39,13 +39,6 @@ public class UserService {
         return userMapper.entityToModel(userEntity);
     }
 
-
-    public void deleteById(Long id) {
-        logger.info("INFO: Delete user by id request started.");
-        userRepository.deleteById(id);
-        logger.info("INFO: Delete request was successful.");
-    }
-
     public User findByLogin(String login) {
         logger.info("INFO: Find user by login request started.");
 
@@ -79,9 +72,8 @@ public class UserService {
             newUser.setRole(Role.USER);
 
             UserEntity createdUserEntity = userRepository.save(userMapper.modelToEntity(newUser));
-            User createdUser = userMapper.entityToModel(createdUserEntity);
 
-            return createdUser;
+            return userMapper.entityToModel(createdUserEntity);
 
 
     }

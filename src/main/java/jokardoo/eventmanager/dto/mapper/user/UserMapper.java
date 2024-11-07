@@ -4,7 +4,6 @@ import jokardoo.eventmanager.domain.user.Role;
 import jokardoo.eventmanager.domain.user.User;
 import jokardoo.eventmanager.domain.user.UserEntity;
 import jokardoo.eventmanager.dto.mapper.Mapper;
-import jokardoo.eventmanager.dto.mapper.event.EventMapper;
 import jokardoo.eventmanager.dto.user.UserDto;
 import jokardoo.eventmanager.exceptions.IncorrectRoleException;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserMapper implements Mapper<User, UserDto, UserEntity> {
 
-    private final EventMapper eventMapper = new EventMapper();
     // TODO mapstruct
     @Override
     public User dtoToModel(UserDto dto) {
