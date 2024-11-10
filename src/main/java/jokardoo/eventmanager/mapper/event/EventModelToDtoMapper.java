@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 
 @Mapper(componentModel = "spring")
-@Component
 public interface EventModelToDtoMapper extends ModelToDtoMapper<Event, EventDto> {
 
 }
