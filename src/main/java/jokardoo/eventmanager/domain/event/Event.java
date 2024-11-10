@@ -21,7 +21,6 @@ public class Event implements Cloneable {
 
     private Integer cost;
 
-    // в минутах
     private Integer duration;
 
     private Long locationId;

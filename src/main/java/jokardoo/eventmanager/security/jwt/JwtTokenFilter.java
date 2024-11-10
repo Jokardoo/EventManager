@@ -1,7 +1,5 @@
 package jokardoo.eventmanager.security.jwt;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.util.List;
 
@@ -55,38 +52,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String loginFromToken;
 
         try {
-            SignatureAlgorithm sa = SignatureAlgorithm.HS256;
-            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), sa.getJcaName());
-
-            Jwts.parser().setSigningKey(secretKeySpec).parse(jwtToken);
-        }
-        catch (Exception e) {
-            logger.error("Invalid token", e);
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-
-        try {
             loginFromToken = jwtTokenManager.getLoginFromToken(jwtToken);
+            User user = userService.findByLogin(loginFromToken);
+
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                    user,
+                    null,
+                    List.of(new SimpleGrantedAuthority(jwtTokenManager.getRoleFromToken(jwtToken)))
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(token);
+            filterChain.doFilter(request, response);
+
         } catch (Exception e) {
             logger.error("Error while reading jwt", e);
             filterChain.doFilter(request, response);
-            return;
         }
 
-
-
-        User user = userService.findByLogin(loginFromToken);
-
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                user,
-                null,
-                List.of(new SimpleGrantedAuthority(jwtTokenManager.getRoleFromToken(jwtToken)))
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(token);
-        filterChain.doFilter(request, response);
     }
 
 

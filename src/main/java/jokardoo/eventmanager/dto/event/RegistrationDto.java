@@ -11,4 +11,9 @@ public class RegistrationDto {
 
     @Positive(message = "User id should be positive!")
     private Long userId;
+
+    public RegistrationDto(Long eventId, Long userId) {
+        this.eventId = eventId;
+        this.userId = userId;
+    }
 }

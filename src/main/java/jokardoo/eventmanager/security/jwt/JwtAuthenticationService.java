@@ -2,7 +2,7 @@ package jokardoo.eventmanager.security.jwt;
 
 import jokardoo.eventmanager.domain.user.SignUpRequest;
 import jokardoo.eventmanager.domain.user.UserEntity;
-import jokardoo.eventmanager.dto.mapper.user.UserMapper;
+import jokardoo.eventmanager.mapper.user.UserModelToEntityMapper;
 import jokardoo.eventmanager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,13 +13,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class JwtAuthenticationService {
-    //TEST FIELDS
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     private final JwtTokenManager tokenManager;
 
-    private final UserMapper userMapper;
+    private final UserModelToEntityMapper userModelToEntityMapper;
     private final AuthenticationManager authenticationManager;
 
     public String authenticateUser(SignUpRequest signUpRequest) {
@@ -30,7 +29,6 @@ public class JwtAuthenticationService {
                 )
         );
 
-        // TEST AUTHENTICATION
 
         UserEntity userEntity = userRepository
                 .findByLogin(signUpRequest.getLogin())
@@ -42,16 +40,11 @@ public class JwtAuthenticationService {
 
             if (passwordEncoder.matches(signUpRequest.getPassword(), userEntity.getPasswordHash())) {
                 System.out.println("Right password");
-                return tokenManager.generateToken(signUpRequest.getLogin(), userMapper.entityToModel(userEntity));
+                return tokenManager.generateToken(signUpRequest.getLogin(), userModelToEntityMapper.toModel(userEntity));
             }
         }
 
        throw new IllegalArgumentException("Incorrect data!");
-
-//       END
-
-//
-//        return tokenManager.generateToken(signUpRequest.getLogin());
     }
 
 

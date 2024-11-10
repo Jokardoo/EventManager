@@ -2,6 +2,7 @@ package jokardoo.eventmanager.domain.location;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 @Data
 @Entity

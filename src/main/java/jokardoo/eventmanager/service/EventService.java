@@ -6,10 +6,10 @@ import jokardoo.eventmanager.domain.event.EventSearchRequest;
 import jokardoo.eventmanager.domain.event.EventStatus;
 import jokardoo.eventmanager.domain.location.EventLocation;
 import jokardoo.eventmanager.domain.user.Role;
-import jokardoo.eventmanager.dto.mapper.event.EventMapper;
 import jokardoo.eventmanager.exceptions.IncorrectDateException;
 import jokardoo.eventmanager.exceptions.IncorrectLocationCapacityException;
 import jokardoo.eventmanager.kafka.event.EventChangesSender;
+import jokardoo.eventmanager.mapper.event.EventModelToEntityMapper;
 import jokardoo.eventmanager.repository.EventRepository;
 import jokardoo.eventmanager.service.utils.AuthenticationParser;
 import jokardoo.eventmanager.service.utils.EventKafkaChangesCreator;
@@ -30,7 +30,7 @@ public class EventService {
 
     private final AuthenticationParser authParser;
 
-    private final EventMapper eventMapper;
+    private final EventModelToEntityMapper eventModelToEntityMapper;
 
     private final EventLocationService eventLocationService;
 
@@ -49,11 +49,11 @@ public class EventService {
 
 
         EventEntity createdEventEntity = eventRepository
-                .save(eventMapper.modelToEntity(
+                .save(eventModelToEntityMapper.toEntity(
                         event
                 ));
 
-        Event createdEvent = eventMapper.entityToModel(createdEventEntity);
+        Event createdEvent = eventModelToEntityMapper.toModel(createdEventEntity);
 
         logger.info("INFO: Event was created!");
 
@@ -62,7 +62,7 @@ public class EventService {
 
     public Event getById(Long id) {
         logger.info("INFO: try to find event by id = " + id);
-        return eventMapper.entityToModel(eventRepository
+        return eventModelToEntityMapper.toModel(eventRepository
                 .findById(id)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Event with id = " + id + " not found!")));
@@ -72,8 +72,8 @@ public class EventService {
 
         if (eventRepository.existsById(event.getId())) {
 
-            Event oldEvent = eventMapper.entityToModel(eventRepository.findById(event.getId()).get());
-            Event savedEvent = eventMapper.entityToModel(eventRepository.save(eventMapper.modelToEntity(event)));
+            Event oldEvent = eventModelToEntityMapper.toModel(eventRepository.findById(event.getId()).get());
+            Event savedEvent = eventModelToEntityMapper.toModel(eventRepository.save(eventModelToEntityMapper.toEntity(event)));
 
             eventChangesSender.sendEvent(eventKafkaChangesCreator.eventToEventKafkaChanges(oldEvent, savedEvent));
 
@@ -89,8 +89,8 @@ public class EventService {
             throw new IllegalStateException("To update the event, you must be an admin or be a organizer of event!");
         }
 
-        Event foundEvent = eventMapper
-                .entityToModel(
+        Event foundEvent = eventModelToEntityMapper
+                .toModel(
                         eventRepository
                                 .findById(eventId)
                                 .orElseThrow(() ->
@@ -135,19 +135,20 @@ public class EventService {
         foundEvent.setMaxPlaces(eventToUpdate.getMaxPlaces());
         foundEvent.setLocationId(eventToUpdate.getLocationId());
 
-        EventEntity updatedEvent = eventRepository.save(eventMapper.modelToEntity(foundEvent));
+        EventEntity updatedEvent = eventRepository.save(eventModelToEntityMapper.toEntity(foundEvent));
 
         logger.info("INFO: Event update success.");
 
-        eventChangesSender.sendEvent(eventKafkaChangesCreator.eventToEventKafkaChanges(oldEvent, eventMapper.entityToModel(updatedEvent)));
+        eventChangesSender.sendEvent(eventKafkaChangesCreator
+                .eventToEventKafkaChanges(oldEvent, eventModelToEntityMapper.toModel(updatedEvent)));
 
-        return eventMapper.entityToModel(updatedEvent);
+        return eventModelToEntityMapper.toModel(updatedEvent);
     }
 
     public void cancelEvent(Long id) {
         logger.info("INFO: Try to cancel event with id = " + id);
 
-        Event event = eventMapper.entityToModel(eventRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Event with id = " + id + " not found!")));
+        Event event = eventModelToEntityMapper.toModel(eventRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Event with id = " + id + " not found!")));
 
         switch (event.getStatus()) {
             case CANCELLED -> throw new IllegalArgumentException("Event is already cancelled!");
@@ -158,9 +159,9 @@ public class EventService {
                 || authParser.getId().equals(event.getOwnerId())) {
             event.setStatus(EventStatus.CANCELLED);
 
-            EventEntity savedEventEntity = eventRepository.save(eventMapper.modelToEntity(event));
+            EventEntity savedEventEntity = eventRepository.save(eventModelToEntityMapper.toEntity(event));
 
-            Event savedEvent = eventMapper.entityToModel(savedEventEntity);
+            Event savedEvent = eventModelToEntityMapper.toModel(savedEventEntity);
 
             logger.info("INFO: The cancellation was successful");
 
@@ -184,12 +185,12 @@ public class EventService {
                 request.getCostMax()
         );
 
-        return eventMapper.entityToModel(entityList);
+        return eventModelToEntityMapper.toModel(entityList);
     }
 
 
     public List<Event> getCurrentUserEvents() {
-        return eventMapper.entityToModel(eventRepository.findByOwnerId(authParser.getId()));
+        return eventModelToEntityMapper.toModel(eventRepository.findByOwnerId(authParser.getId()));
     }
 
     private void checkEventFields(Event event) {
@@ -215,7 +216,7 @@ public class EventService {
     }
 
     public List<Event> findAll() {
-        return eventMapper.entityToModel(eventRepository.findAll());
+        return eventModelToEntityMapper.toModel(eventRepository.findAll());
     }
 
 

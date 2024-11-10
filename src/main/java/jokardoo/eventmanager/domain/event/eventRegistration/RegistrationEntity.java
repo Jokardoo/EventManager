@@ -17,4 +17,13 @@ public class RegistrationEntity {
     @Column(name = "user_id")
     private Long userId;
 
+    public RegistrationEntity(Long id, Long eventId, Long userId) {
+        this.id = id;
+        this.eventId = eventId;
+        this.userId = userId;
+    }
+
+    public RegistrationEntity() {
+
+    }
 }

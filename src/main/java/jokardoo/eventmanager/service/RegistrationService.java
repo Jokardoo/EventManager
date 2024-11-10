@@ -3,7 +3,7 @@ package jokardoo.eventmanager.service;
 import jokardoo.eventmanager.domain.event.Event;
 import jokardoo.eventmanager.domain.event.EventStatus;
 import jokardoo.eventmanager.domain.event.eventRegistration.Registration;
-import jokardoo.eventmanager.dto.mapper.event.RegistrationMapper;
+import jokardoo.eventmanager.mapper.event.RegistrationModelToEntityMapper;
 import jokardoo.eventmanager.repository.RegistrationRepository;
 import jokardoo.eventmanager.service.utils.AuthenticationParser;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class RegistrationService {
 
     private final RegistrationRepository registrationRepository;
 
-    private final RegistrationMapper registrationMapper;
+    private final RegistrationModelToEntityMapper registrationModelToEntityMapper;
 
     private final EventService eventService;
 
@@ -33,7 +33,7 @@ public class RegistrationService {
 
         checkRegisterUserOnEvent(event, registration);
 
-        registrationRepository.save(registrationMapper.modelToEntity(registration));
+        registrationRepository.save(registrationModelToEntityMapper.toEntity(registration));
         event.setOccupiedPlaces(event.getOccupiedPlaces() + 1);
         eventService.save(event);
 
@@ -42,7 +42,7 @@ public class RegistrationService {
     public void cancelRegistration(Long eventId) {
 
         Long userId = authParser.getId();
-        Registration registration = registrationMapper.entityToModel(registrationRepository.findByEventIdAndUserId(eventId, userId)
+        Registration registration = registrationModelToEntityMapper.toModel(registrationRepository.findByEventIdAndUserId(eventId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Event by id " + eventId +
                         " was not found!")));
 
@@ -61,7 +61,7 @@ public class RegistrationService {
     }
 
     public List<Registration> getAllByCurrentUserId() {
-        return registrationMapper.entityToModel(registrationRepository.findAllByUserId(authParser.getId()));
+        return registrationModelToEntityMapper.toModel(registrationRepository.findAllByUserId(authParser.getId()));
     }
 
     private void checkRegisterUserOnEvent(Event event, Registration registration) {

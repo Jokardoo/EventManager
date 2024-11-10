@@ -3,8 +3,8 @@ package jokardoo.eventmanager.service;
 import jokardoo.eventmanager.domain.user.Role;
 import jokardoo.eventmanager.domain.user.User;
 import jokardoo.eventmanager.domain.user.UserEntity;
-import jokardoo.eventmanager.dto.mapper.user.UserMapper;
 import jokardoo.eventmanager.exceptions.IncorrectRoleException;
+import jokardoo.eventmanager.mapper.user.UserModelToEntityMapper;
 import jokardoo.eventmanager.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final UserModelToEntityMapper userModelToEntityMapper;
 
 
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -36,7 +36,7 @@ public class UserService {
                 .orElseThrow(() ->
                         new IllegalArgumentException("User with id " + id + " not found!"));
 
-        return userMapper.entityToModel(userEntity);
+        return userModelToEntityMapper.toModel(userEntity);
     }
 
     public User findByLogin(String login) {
@@ -45,7 +45,7 @@ public class UserService {
         UserEntity userEntity = userRepository.findByLogin(login)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username " + login + " not found!"));
 
-        return userMapper.entityToModel(userEntity);
+        return userModelToEntityMapper.toModel(userEntity);
     }
 
 
@@ -71,9 +71,9 @@ public class UserService {
             newUser.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
             newUser.setRole(Role.USER);
 
-            UserEntity createdUserEntity = userRepository.save(userMapper.modelToEntity(newUser));
+            UserEntity createdUserEntity = userRepository.save(userModelToEntityMapper.toEntity(newUser));
 
-            return userMapper.entityToModel(createdUserEntity);
+            return userModelToEntityMapper.toModel(createdUserEntity);
 
 
     }

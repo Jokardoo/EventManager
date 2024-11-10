@@ -7,7 +7,7 @@ import jokardoo.eventmanager.dto.event.EventSearchRequestDto;
 import jokardoo.eventmanager.domain.event.EventUpdateRequestDto;
 import jokardoo.eventmanager.dto.event.EventDto;
 import jokardoo.eventmanager.dto.event.RegistrationDto;
-import jokardoo.eventmanager.dto.mapper.event.*;
+import jokardoo.eventmanager.mapper.event.*;
 import jokardoo.eventmanager.service.RegistrationService;
 import jokardoo.eventmanager.service.EventService;
 import lombok.RequiredArgsConstructor;
@@ -26,14 +26,13 @@ public class EventController {
     private final RegistrationService registrationService;
 
     private final EventCreateRequestMapper eventCreateRequestMapper;
-
     private final EventUpdateRequestMapper eventUpdateRequestMapper;
-
     private final EventSearchRequestMapper eventSearchRequestMapper;
 
-    private final EventMapper eventMapper;
+    private final EventModelToDtoMapper eventModelToDtoMapper;
 
-    private final RegistrationMapper registrationMapper;
+    private final RegistrationModelToDtoMapper registrationModelToDtoMapper;
+
 
     @PostMapping
     public ResponseEntity<EventDto> createEvent(
@@ -45,7 +44,7 @@ public class EventController {
                                 .toModel(request)
                 );
 
-        return ResponseEntity.ok(eventMapper.modelToDto(createdEvent));
+        return ResponseEntity.ok(eventModelToDtoMapper.toDto(createdEvent));
     }
 
     @DeleteMapping()
@@ -56,8 +55,8 @@ public class EventController {
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventDto> getEventByIf(@PathVariable(name = "eventId") Long eventId) {
-        return ResponseEntity.ok(eventMapper.modelToDto(eventService.getById(eventId)));
+    public ResponseEntity<EventDto> getEventById(@PathVariable(name = "eventId") Long eventId) {
+        return ResponseEntity.ok(eventModelToDtoMapper.toDto(eventService.getById(eventId)));
     }
 
     @PutMapping
@@ -65,7 +64,7 @@ public class EventController {
 
         Event event = eventUpdateRequestMapper.toModel(eventUpdateRequestDto);
 
-        return ResponseEntity.ok(eventMapper.modelToDto(eventService.update(event, eventId)));
+        return ResponseEntity.ok(eventModelToDtoMapper.toDto(eventService.update(event, eventId)));
     }
 
     @PostMapping("/search")
@@ -73,12 +72,12 @@ public class EventController {
 
         List<Event> events = eventService.getFilteredEvents(eventSearchRequestMapper.toModel(searchRequestDto));
 
-        return ResponseEntity.status(200).body(eventMapper.modelToDto(events));
+        return ResponseEntity.status(200).body(eventModelToDtoMapper.toDto(events));
     }
 
     @GetMapping("/my")
     public ResponseEntity<List<EventDto>> getCurrentUserEvents() {
-        return ResponseEntity.ok(eventMapper.modelToDto(eventService.getCurrentUserEvents()));
+        return ResponseEntity.ok(eventModelToDtoMapper.toDto(eventService.getCurrentUserEvents()));
     }
 
     @PostMapping("/registration")
@@ -97,7 +96,7 @@ public class EventController {
 
     @GetMapping("/registrations/my")
     public ResponseEntity<List<RegistrationDto>> getUserEventRegistrations() {
-        return ResponseEntity.ok(registrationMapper.modelToDto(registrationService.getAllByCurrentUserId()));
+        return ResponseEntity.ok(registrationModelToDtoMapper.toDto(registrationService.getAllByCurrentUserId()));
     }
 
 }

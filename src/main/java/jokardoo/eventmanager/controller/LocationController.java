@@ -3,8 +3,9 @@ package jokardoo.eventmanager.controller;
 import jakarta.validation.Valid;
 import jokardoo.eventmanager.domain.location.EventLocation;
 import jokardoo.eventmanager.dto.location.EventLocationDto;
-import jokardoo.eventmanager.dto.mapper.location.EventLocationMapper;
+import jokardoo.eventmanager.mapper.location.EventLocationModelToDtoMapper;
 import jokardoo.eventmanager.service.EventLocationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,32 +15,27 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/locations")
+@RequiredArgsConstructor
 public class LocationController {
-
-    private final EventLocationMapper eventLocationMapper;
+    private final EventLocationModelToDtoMapper eventLocationModelToDtoMapper;
     private final EventLocationService eventLocationService;
 
 
-    public LocationController(EventLocationMapper eventLocationMapper, EventLocationService eventLocationService) {
-        this.eventLocationMapper = eventLocationMapper;
-        this.eventLocationService = eventLocationService;
-    }
-
     @GetMapping
     public List<EventLocationDto> getAll() {
-        return eventLocationMapper.modelToDto(eventLocationService.getAll());
+        return eventLocationModelToDtoMapper.toDto(eventLocationService.getAll());
     }
 
     @GetMapping("/{locationId}")
-    public ResponseEntity<EventLocationDto>  getById(@PathVariable(name = "locationId") Integer id) {
-        return ResponseEntity.status(HttpStatus.OK).body(eventLocationMapper.modelToDto(eventLocationService.getById(id))) ;
+    public ResponseEntity<EventLocationDto> getById(@PathVariable(name = "locationId") Integer id) {
+        return ResponseEntity.status(HttpStatus.OK).body(eventLocationModelToDtoMapper.toDto(eventLocationService.getById(id)));
     }
 
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     public ResponseEntity<HttpStatus> create(@Valid @RequestBody EventLocationDto eventLocationDto) {
-        EventLocation location = eventLocationMapper.dtoToModel(eventLocationDto);
+        EventLocation location = eventLocationModelToDtoMapper.toModel(eventLocationDto);
 
         eventLocationService.save(location);
 
@@ -50,7 +46,7 @@ public class LocationController {
     public ResponseEntity<HttpStatus> update(@RequestParam(name = "locationId") Integer id,
                                              @Valid @RequestBody EventLocationDto eventLocationDto) {
 
-        eventLocationService.update(id, eventLocationMapper.dtoToModel(eventLocationDto));
+        eventLocationService.update(id, eventLocationModelToDtoMapper.toModel(eventLocationDto));
         return ResponseEntity.ok(HttpStatus.OK);
     }
 

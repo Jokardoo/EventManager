@@ -2,7 +2,7 @@ package jokardoo.eventmanager.service;
 
 import jokardoo.eventmanager.domain.location.EventLocation;
 import jokardoo.eventmanager.domain.location.EventLocationEntity;
-import jokardoo.eventmanager.dto.mapper.location.EventLocationMapper;
+import jokardoo.eventmanager.mapper.location.EventLocationModelToEntityMapper;
 import jokardoo.eventmanager.repository.EventLocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ import java.util.List;
 public class EventLocationService {
     private final Logger logger = LoggerFactory.getLogger(EventLocationService.class);
 
-    private final EventLocationMapper eventLocationMapper;
+    private final EventLocationModelToEntityMapper eventLocationModelToEntityMapper;
     private final EventLocationRepository eventLocationRepository;
 
 
@@ -26,13 +26,7 @@ public class EventLocationService {
         List<EventLocation> eventLocationList = new ArrayList<>();
 
         for (EventLocationEntity locationEntity : eventLocationRepository.findAll()) {
-            EventLocation eventLocation = new EventLocation(
-                    locationEntity.getId(),
-                    locationEntity.getName(),
-                    locationEntity.getAddress(),
-                    locationEntity.getCapacity(),
-                    locationEntity.getDescription());
-            eventLocationList.add(eventLocation);
+            eventLocationList.add(eventLocationModelToEntityMapper.toModel(locationEntity));
         }
         return eventLocationList;
     }
@@ -46,12 +40,7 @@ public class EventLocationService {
                         new IllegalArgumentException("Location with id = " + id
                                 + " not found!"));
 
-        return new EventLocation(
-                locationEntity.getId(),
-                locationEntity.getName(),
-                locationEntity.getAddress(),
-                locationEntity.getCapacity(),
-                locationEntity.getDescription());
+        return eventLocationModelToEntityMapper.toModel(locationEntity);
     }
 
     public void deleteById(Integer id) {
@@ -64,14 +53,7 @@ public class EventLocationService {
     }
 
     public void save(EventLocation eventLocation) {
-        EventLocationEntity locationEntity = new EventLocationEntity(
-                eventLocation.getId(),
-                eventLocation.getName(),
-                eventLocation.getAddress(),
-                eventLocation.getCapacity(),
-                eventLocation.getDescription()
-        );
-        eventLocationRepository.save(locationEntity);
+        eventLocationRepository.save(eventLocationModelToEntityMapper.toEntity(eventLocation));
     }
 
 

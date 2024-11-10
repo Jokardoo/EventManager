@@ -2,7 +2,6 @@ package jokardoo.eventmanager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jokardoo.eventmanager.domain.user.UserEntity;
-import jokardoo.eventmanager.dto.mapper.user.UserMapper;
 import jokardoo.eventmanager.repository.UserRepository;
 import jokardoo.eventmanager.service.utils.DefaultAccountCreator;
 import org.junit.jupiter.api.Assertions;
@@ -14,17 +13,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 class EventmanagerApplicationTests {
 
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
-	@Autowired
-	private UserMapper userMapper;
 
 	@Autowired
 	private UserRepository userRepository;
