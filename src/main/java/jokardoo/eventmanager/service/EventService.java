@@ -8,11 +8,9 @@ import jokardoo.eventmanager.domain.location.EventLocation;
 import jokardoo.eventmanager.domain.user.Role;
 import jokardoo.eventmanager.exceptions.IncorrectDateException;
 import jokardoo.eventmanager.exceptions.IncorrectLocationCapacityException;
-import jokardoo.eventmanager.kafka.event.EventChangesSender;
 import jokardoo.eventmanager.mapper.event.EventModelToEntityMapper;
 import jokardoo.eventmanager.repository.EventRepository;
 import jokardoo.eventmanager.service.utils.AuthenticationParser;
-import jokardoo.eventmanager.service.utils.EventKafkaChangesCreator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +31,6 @@ public class EventService {
     private final EventModelToEntityMapper eventModelToEntityMapper;
 
     private final EventLocationService eventLocationService;
-
-    private final EventChangesSender eventChangesSender;
-
-    private final EventKafkaChangesCreator eventKafkaChangesCreator;
 
     public Event registerEvent(Event event) {
         logger.info("INFO: try to create event");
@@ -70,14 +64,8 @@ public class EventService {
 
     public void save(Event event) {
 
-        if (eventRepository.existsById(event.getId())) {
+        eventRepository.save(eventModelToEntityMapper.toEntity(event));
 
-            Event oldEvent = eventModelToEntityMapper.toModel(eventRepository.findById(event.getId()).get());
-            Event savedEvent = eventModelToEntityMapper.toModel(eventRepository.save(eventModelToEntityMapper.toEntity(event)));
-
-            eventChangesSender.sendEvent(eventKafkaChangesCreator.eventToEventKafkaChanges(oldEvent, savedEvent));
-
-        }
     }
 
     public Event update(Event eventToUpdate, Long eventId) {
@@ -97,7 +85,6 @@ public class EventService {
                                         new IllegalArgumentException("Event with id = " + eventId + " not found!"))
                 );
 
-        // If the event has already started, canceled, or ended
         if (!foundEvent.getStatus().equals(EventStatus.WAIT_START)) {
             logger.info("WARN: Event status is not 'WAIT_START'. Event can't be updated!");
             throw new IllegalArgumentException("You can't update this event, because it has already started, canceled or ended!");
@@ -107,7 +94,6 @@ public class EventService {
             throw new IllegalArgumentException("The maximum number of places in the update event must be equal to or greater, than it was before the update");
         }
 
-        // If we change location
         if (!foundEvent.getLocationId().equals(eventToUpdate.getLocationId())) {
             EventLocation newEventLocation = eventLocationService.getById(Math.toIntExact(eventToUpdate.getLocationId()));
 
@@ -117,14 +103,6 @@ public class EventService {
         }
 
         checkEventFields(eventToUpdate);
-
-        Event oldEvent;
-
-        try {
-            oldEvent = (Event) foundEvent.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("An exception occurred while trying to clone an object");
-        }
 
 
         foundEvent.setName(eventToUpdate.getName());
@@ -139,8 +117,6 @@ public class EventService {
 
         logger.info("INFO: Event update success.");
 
-        eventChangesSender.sendEvent(eventKafkaChangesCreator
-                .eventToEventKafkaChanges(oldEvent, eventModelToEntityMapper.toModel(updatedEvent)));
 
         return eventModelToEntityMapper.toModel(updatedEvent);
     }
@@ -159,14 +135,9 @@ public class EventService {
                 || authParser.getId().equals(event.getOwnerId())) {
             event.setStatus(EventStatus.CANCELLED);
 
-            EventEntity savedEventEntity = eventRepository.save(eventModelToEntityMapper.toEntity(event));
-
-            Event savedEvent = eventModelToEntityMapper.toModel(savedEventEntity);
-
             logger.info("INFO: The cancellation was successful");
 
-            eventChangesSender.sendEvent(eventKafkaChangesCreator.eventToEventKafkaChanges(event, savedEvent));
-        } else
+            } else
             throw new IllegalStateException("To cancel an event, you must have the role admin or be the organizer of the event!");
     }
 
