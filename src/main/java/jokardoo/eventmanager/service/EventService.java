@@ -72,51 +72,19 @@ public class EventService {
 
         logger.info("INFO: try to update event.");
 
-        if (!authParser.getRole().equals(Role.ADMIN)
-                || authParser.getId().equals(eventToUpdate.getId())) {
-            throw new IllegalStateException("To update the event, you must be an admin or be a organizer of event!");
-        }
-
         Event foundEvent = eventModelToEntityMapper
-                .toModel(
-                        eventRepository
+                .toModel(eventRepository
                                 .findById(eventId)
                                 .orElseThrow(() ->
-                                        new IllegalArgumentException("Event with id = " + eventId + " not found!"))
-                );
+                                        new IllegalArgumentException("Event with id = " + eventId + " not found!")));
 
-        if (!foundEvent.getStatus().equals(EventStatus.WAIT_START)) {
-            logger.info("WARN: Event status is not 'WAIT_START'. Event can't be updated!");
-            throw new IllegalArgumentException("You can't update this event, because it has already started, canceled or ended!");
-        }
+        areOldEventCanBeUpdatedToNewEventFullCheck(foundEvent, eventToUpdate);
 
-        if (foundEvent.getMaxPlaces() > eventToUpdate.getMaxPlaces()) {
-            throw new IllegalArgumentException("The maximum number of places in the update event must be equal to or greater, than it was before the update");
-        }
-
-        if (!foundEvent.getLocationId().equals(eventToUpdate.getLocationId())) {
-            EventLocation newEventLocation = eventLocationService.getById(Math.toIntExact(eventToUpdate.getLocationId()));
-
-            if (newEventLocation.getCapacity() < eventToUpdate.getMaxPlaces()) {
-                throw new IllegalArgumentException("The new location capacity is less, than planned in the event");
-            }
-        }
-
-        checkEventFields(eventToUpdate);
-
-
-        foundEvent.setName(eventToUpdate.getName());
-        foundEvent.setCost(eventToUpdate.getCost());
-        foundEvent.setDuration(eventToUpdate.getDuration());
-
-        foundEvent.setDate(eventToUpdate.getDate());
-        foundEvent.setMaxPlaces(eventToUpdate.getMaxPlaces());
-        foundEvent.setLocationId(eventToUpdate.getLocationId());
+        updateOldEventFieldsToNewValues(foundEvent, eventToUpdate);
 
         EventEntity updatedEvent = eventRepository.save(eventModelToEntityMapper.toEntity(foundEvent));
 
         logger.info("INFO: Event update success.");
-
 
         return eventModelToEntityMapper.toModel(updatedEvent);
     }
@@ -137,7 +105,7 @@ public class EventService {
 
             logger.info("INFO: The cancellation was successful");
 
-            } else
+        } else
             throw new IllegalStateException("To cancel an event, you must have the role admin or be the organizer of the event!");
     }
 
@@ -164,11 +132,21 @@ public class EventService {
         return eventModelToEntityMapper.toModel(eventRepository.findByOwnerId(authParser.getId()));
     }
 
+    public List<Event> findAll() {
+        return eventModelToEntityMapper.toModel(eventRepository.findAll());
+    }
+
+
+    private void areOldEventCanBeUpdatedToNewEventFullCheck(Event oldEvent, Event newEvent) {
+        checkUserAuthToUpdateEvent(oldEvent);
+        areOldEventCanBeUpdatedToNewEventCheck(oldEvent, newEvent);
+        checkEventFields(newEvent);
+    }
+
     private void checkEventFields(Event event) {
         // Double to Integer
         EventLocation curLocation = eventLocationService.getById(Math.toIntExact(event.getLocationId()));
 
-        // Capacity check
         if (curLocation.getCapacity() < event.getMaxPlaces()) {
             logger.warn("WARN: incorrect location capacity!");
             throw new IncorrectLocationCapacityException("This location cannot accommodate the number of people specified in the event");
@@ -176,9 +154,8 @@ public class EventService {
 
 
         LocalDateTime eventDate = event.getDate();
-        LocalDateTime curDate = LocalDateTime.now();
 
-        if (eventDate.isBefore(curDate)) {
+        if (eventDate.isBefore(LocalDateTime.now())) {
             logger.warn("WARN: Incorrect date exception!");
             throw new IncorrectDateException("The date of the event cannot be in the past tense!");
         }
@@ -186,9 +163,41 @@ public class EventService {
 
     }
 
-    public List<Event> findAll() {
-        return eventModelToEntityMapper.toModel(eventRepository.findAll());
+    private void checkUserAuthToUpdateEvent(Event event) {
+        if (!authParser.getRole().equals(Role.ADMIN)) {
+            if (!authParser.getId().equals(event.getOwnerId())) {
+                throw new IllegalStateException("To update the event, you must be an admin or be a organizer of event!");
+            }
+        }
     }
 
+    private void areOldEventCanBeUpdatedToNewEventCheck(Event oldEvent, Event newEvent) {
+        if (!oldEvent.getStatus().equals(EventStatus.WAIT_START)) {
+            logger.info("WARN: Event status is not 'WAIT_START'. Event can't be updated!");
+            throw new IllegalArgumentException("You can't update this event, because it has already started, canceled or ended!");
+        }
 
+        if (oldEvent.getMaxPlaces() > newEvent.getMaxPlaces()) {
+            throw new IllegalArgumentException("The maximum number of places in the update event must be equal to or greater, than it was before the update");
+        }
+
+        if (!oldEvent.getLocationId().equals(newEvent.getLocationId())) {
+            EventLocation newEventLocation = eventLocationService.getById(Math.toIntExact(newEvent.getLocationId()));
+
+            if (newEventLocation.getCapacity() < newEvent.getMaxPlaces()) {
+                throw new IllegalArgumentException("The new location capacity is less, than planned in the event");
+            }
+        }
+    }
+
+    private void updateOldEventFieldsToNewValues(Event oldEvent, Event newEvent) {
+
+        oldEvent.setName(newEvent.getName());
+        oldEvent.setCost(newEvent.getCost());
+        oldEvent.setDuration(newEvent.getDuration());
+
+        oldEvent.setDate(newEvent.getDate());
+        oldEvent.setMaxPlaces(newEvent.getMaxPlaces());
+        oldEvent.setLocationId(newEvent.getLocationId());
+    }
 }
