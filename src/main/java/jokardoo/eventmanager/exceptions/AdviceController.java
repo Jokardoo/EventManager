@@ -48,4 +48,13 @@ public class AdviceController {
         return ResponseEntity.status(404).body(errorMessageResponse);
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorMessageResponse> illegalStateException(IllegalStateException e) {
+        ErrorMessageResponse errorMessageResponse =
+                new ErrorMessageResponse("IllegalStateException",
+                        e.getMessage(),
+                        LocalDateTime.now());
+        return ResponseEntity.status(401).body(errorMessageResponse);
+    }
+
 }

@@ -35,6 +35,7 @@
 		<springdoc-openapi-starter-webmvc-ui.version>2.6.0</springdoc-openapi-starter-webmvc-ui.version>
 		<jjwt.version>0.11.5</jjwt.version>
 		<spring-security-test.version>6.3.3</spring-security-test.version>
+		<mapstruct.version>1.5.5.Final</mapstruct.version>
 	</properties>
 
 
@@ -92,6 +93,8 @@
 			<version>${jjwt.version}</version>
 		</dependency>
 
+
+
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
@@ -113,6 +116,17 @@
 			<version>${lombok.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct-processor</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
 
 	</dependencies>
 
@@ -122,6 +136,9 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+
+
 		</plugins>
 	</build>
 

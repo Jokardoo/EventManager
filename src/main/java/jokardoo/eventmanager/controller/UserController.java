@@ -3,8 +3,8 @@ package jokardoo.eventmanager.controller;
 import jakarta.validation.Valid;
 import jokardoo.eventmanager.domain.user.SignUpRequest;
 import jokardoo.eventmanager.domain.user.User;
-import jokardoo.eventmanager.dto.mapper.user.UserMapper;
 import jokardoo.eventmanager.dto.user.UserDto;
+import jokardoo.eventmanager.mapper.user.UserModelToDtoMapper;
 import jokardoo.eventmanager.security.jwt.JwtAuthenticationService;
 import jokardoo.eventmanager.security.jwt.JwtResponse;
 import jokardoo.eventmanager.service.UserService;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final UserMapper userMapper;
+    private final UserModelToDtoMapper userModelToDtoMapper;
     private final JwtAuthenticationService jwtAuthenticationService;
 
     @PostMapping
@@ -32,8 +32,8 @@ public class UserController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(userMapper
-                        .modelToDto(
+                .body(userModelToDtoMapper
+                        .toDto(
                                 userService.registerUser(user)
                         )
                 );
@@ -53,7 +53,7 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getById(@PathVariable(name = "userId") Long id) {
 
-        return ResponseEntity.ok(userMapper.modelToDto(userService.getById(id)));
+        return ResponseEntity.ok(userModelToDtoMapper.toDto(userService.getById(id)));
     }
 
 

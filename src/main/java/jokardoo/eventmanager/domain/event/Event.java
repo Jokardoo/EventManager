@@ -2,30 +2,33 @@ package jokardoo.eventmanager.domain.event;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
-public class Event {
+public class Event implements Cloneable {
 
-    private int id;
+    private Long id;
 
     private String name;
 
-    private int ownerId;
+    private Long ownerId;
 
-    private int maxPlaces;
+    private Integer maxPlaces;
 
-    private int occupiedPlaces;
+    private Integer occupiedPlaces;
 
-    private Date date;
+    private LocalDateTime date;
 
-    private double cost;
+    private Integer cost;
 
-    // в минутах
-    private int duration;
+    private Integer duration;
 
-    private int locationId;
+    private Long locationId;
 
     private EventStatus status;
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }
