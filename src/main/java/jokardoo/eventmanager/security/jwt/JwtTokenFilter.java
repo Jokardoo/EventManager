@@ -49,9 +49,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         String jwtToken = authHeader.substring(7);
 
+        if (jwtTokenManager.isTokenExpired(jwtToken))
+            throw new IllegalArgumentException("JWt token is expired!");
+
         String loginFromToken;
 
         try {
+
             loginFromToken = jwtTokenManager.getLoginFromToken(jwtToken);
             User user = userService.findByLogin(loginFromToken);
 
@@ -70,6 +74,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
     }
+
 
 
 }
