@@ -35,7 +35,6 @@ public class RegistrationService {
 
         registrationRepository.save(registrationModelToEntityMapper.toEntity(registration));
         event.setOccupiedPlaces(event.getOccupiedPlaces() + 1);
-        eventService.save(event);
 
     }
 

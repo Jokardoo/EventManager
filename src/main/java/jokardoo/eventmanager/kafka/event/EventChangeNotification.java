@@ -1,8 +1,10 @@
 package jokardoo.eventmanager.kafka.event;
 
+import jokardoo.eventmanager.domain.event.EventStatus;
 import jokardoo.eventmanager.kafka.fieldsToChange.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -10,28 +12,28 @@ public class EventChangeNotification {
 
     private Long eventId;
 
-    private Long userId;
+    private Long changedUserId;
 
     private Long eventOwnerId;
 
     private boolean isEventNew;
 
 
-    private FieldChangeString name;
+    private FieldChange<String> name;
 
-    private FieldChangeInteger maxPlaces;
+    private FieldChange<Integer> maxPlaces;
 
-    private FieldChangeInteger occupiedPlaces;
+    private FieldChange<Integer> occupiedPlaces;
 
-    private FieldChangeDateTime date;
+    private FieldChange<LocalDateTime> date;
 
-    private FieldChangeInteger cost;
+    private FieldChange<Integer> cost;
 
-    private FieldChangeInteger duration;
+    private FieldChange<Integer> duration;
 
-    private FieldChangeLong locationId;
+    private FieldChange<Long> locationId;
 
-    private FieldChangeEventStatus status;
+    private FieldChange<EventStatus> status;
 
 
     private List<Long> subscribersIdList;
@@ -44,16 +46,16 @@ public class EventChangeNotification {
     public static EventChangeNotification getInstanceWithDefaultFieldChanges() {
         EventChangeNotification eventChangeNotification = new EventChangeNotification();
 
-        eventChangeNotification.setCost(new FieldChangeInteger());
-        eventChangeNotification.setName(new FieldChangeString());
-        eventChangeNotification.setMaxPlaces(new FieldChangeInteger());
+        eventChangeNotification.setCost(new FieldChange<Integer>());
+        eventChangeNotification.setName(new FieldChange<String>());
+        eventChangeNotification.setMaxPlaces(new FieldChange<Integer>());
 
-        eventChangeNotification.setOccupiedPlaces(new FieldChangeInteger());
-        eventChangeNotification.setDate(new FieldChangeDateTime());
-        eventChangeNotification.setDuration(new FieldChangeInteger());
+        eventChangeNotification.setOccupiedPlaces(new FieldChange<Integer>());
+        eventChangeNotification.setDate(new FieldChange<LocalDateTime>());
+        eventChangeNotification.setDuration(new FieldChange<Integer>());
 
-        eventChangeNotification.setLocationId(new FieldChangeLong());
-        eventChangeNotification.setStatus(new FieldChangeEventStatus());
+        eventChangeNotification.setLocationId(new FieldChange<Long>());
+        eventChangeNotification.setStatus(new FieldChange<EventStatus>());
 
         return eventChangeNotification;
     }

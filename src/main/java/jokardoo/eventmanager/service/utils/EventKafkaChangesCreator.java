@@ -100,9 +100,9 @@ public class EventKafkaChangesCreator {
     private void updateUserIdOnEventChangeNotification(EventChangeNotification eventChangeNotification) {
 
         try {
-            eventChangeNotification.setUserId(authParser.getId());
+            eventChangeNotification.setChangedUserId(authParser.getId());
         } catch (NullPointerException e) {
-            eventChangeNotification.setUserId(null);
+            eventChangeNotification.setChangedUserId(null);
         }
 
     }
@@ -127,6 +127,6 @@ public class EventKafkaChangesCreator {
 
         eventChangeNotification.getStatus().setOldValue(event.getStatus());
         eventChangeNotification.getStatus().setNewValue(EventStatus.CANCELLED);
-        eventChangeNotification.setUserId(authParser.getId());
+        eventChangeNotification.setChangedUserId(authParser.getId());
     }
 }
