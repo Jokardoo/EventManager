@@ -1,7 +1,7 @@
 package jokardoo.eventmanager.kafka.event;
 
 import jokardoo.eventmanager.domain.event.EventStatus;
-import jokardoo.eventmanager.kafka.fieldsToChange.*;
+import jokardoo.eventmanager.kafka.fieldsToChange.FieldChange;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -46,16 +46,16 @@ public class EventChangeNotification {
     public static EventChangeNotification getInstanceWithDefaultFieldChanges() {
         EventChangeNotification eventChangeNotification = new EventChangeNotification();
 
-        eventChangeNotification.setCost(new FieldChange<Integer>());
-        eventChangeNotification.setName(new FieldChange<String>());
-        eventChangeNotification.setMaxPlaces(new FieldChange<Integer>());
+        eventChangeNotification.setCost(new FieldChange<>());
+        eventChangeNotification.setName(new FieldChange<>());
+        eventChangeNotification.setMaxPlaces(new FieldChange<>());
 
-        eventChangeNotification.setOccupiedPlaces(new FieldChange<Integer>());
-        eventChangeNotification.setDate(new FieldChange<LocalDateTime>());
-        eventChangeNotification.setDuration(new FieldChange<Integer>());
+        eventChangeNotification.setOccupiedPlaces(new FieldChange<>());
+        eventChangeNotification.setDate(new FieldChange<>());
+        eventChangeNotification.setDuration(new FieldChange<>());
 
-        eventChangeNotification.setLocationId(new FieldChange<Long>());
-        eventChangeNotification.setStatus(new FieldChange<EventStatus>());
+        eventChangeNotification.setLocationId(new FieldChange<>());
+        eventChangeNotification.setStatus(new FieldChange<>());
 
         return eventChangeNotification;
     }
