@@ -64,7 +64,9 @@ public class EventController {
 
         Event event = eventUpdateRequestMapper.toModel(eventUpdateRequestDto);
 
-        return ResponseEntity.ok(eventModelToDtoMapper.toDto(eventService.update(event, eventId)));
+        EventDto eventDto = eventModelToDtoMapper.toDto(eventService.update(event, eventId));
+
+        return ResponseEntity.ok(eventDto);
     }
 
     @PostMapping("/search")

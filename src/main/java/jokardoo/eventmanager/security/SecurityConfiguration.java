@@ -30,12 +30,12 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-         return http
+        return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(login -> login.disable())
 
                 .sessionManagement(session ->
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
                 .authorizeHttpRequests(authorizeHttpRequest ->
@@ -56,8 +56,6 @@ public class SecurityConfiguration {
 
                                 .requestMatchers(HttpMethod.POST, "/locations")
                                 .hasAnyAuthority("ADMIN")
-
-
 
 
                                 .requestMatchers(HttpMethod.GET, "/users/{userId}")
@@ -90,10 +88,11 @@ public class SecurityConfiguration {
 
 
                                 .anyRequest().authenticated())
-                 .addFilterBefore(jwtTokenFilter, AnonymousAuthenticationFilter.class)
-                 .exceptionHandling((exceptionHandling) ->  exceptionHandling
-                         .accessDeniedHandler(customAccessDeniedHandler)
-                         .authenticationEntryPoint(authenticationEntryPoint))
+
+                .addFilterBefore(jwtTokenFilter, AnonymousAuthenticationFilter.class)
+                .exceptionHandling((exceptionHandling) -> exceptionHandling
+                        .accessDeniedHandler(customAccessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryPoint))
                 .build();
     }
 

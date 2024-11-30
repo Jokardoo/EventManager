@@ -42,6 +42,14 @@ class EventmanagerApplicationTests {
 	}
 
 	@Test
+	public void test() {
+		int x = 2;
+		int y = 23;
+
+		Assertions.assertEquals(46, x * y);
+	}
+
+	@Test
 	@WithMockUser(username = "admin", authorities = "ADMIN")
 	void shouldContainsOnlyHashedPasswordInDatabase() throws Exception {
 

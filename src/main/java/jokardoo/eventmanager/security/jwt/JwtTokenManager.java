@@ -59,4 +59,13 @@ public class JwtTokenManager {
         return role;
     }
 
+    public boolean isTokenExpired(String jwt) {
+        return Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+                .build()
+                .parseClaimsJws(jwt)
+                .getBody()
+                .getExpiration().before(new Date());
+    }
+
+
 }

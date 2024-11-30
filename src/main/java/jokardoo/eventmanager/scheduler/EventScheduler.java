@@ -22,21 +22,25 @@ public class EventScheduler {
 
     @Scheduled(fixedRate = 60000)
     public void updateEventsStatus() {
-        LocalDateTime now = LocalDateTime.now();
 
         List<Event> eventList = eventService.findAll();
 
         eventList
                 .forEach(event -> {
-
-                            if (event.getDate().isBefore(now) && event.getStatus().equals(EventStatus.WAIT_START)) {
-                                event.setStatus(EventStatus.STARTED);
-                            } else if (event.getDate().plusMinutes(event.getDuration()).isBefore(now) && event.getStatus().equals(EventStatus.STARTED)) {
-                                event.setStatus(EventStatus.FINISHED);
-                            }
+                            updateEventStatusByDateField(event);
                             eventService.save(event);
                         }
                 );
+    }
+
+    public void updateEventStatusByDateField(Event event) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (event.getDate().isBefore(now) && event.getStatus().equals(EventStatus.WAIT_START)) {
+            event.setStatus(EventStatus.STARTED);
+        } else if (event.getDate().plusMinutes(event.getDuration()).isBefore(now) && event.getStatus().equals(EventStatus.STARTED)) {
+            event.setStatus(EventStatus.FINISHED);
+        }
     }
 
 }

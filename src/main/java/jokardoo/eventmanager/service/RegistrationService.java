@@ -25,9 +25,9 @@ public class RegistrationService {
 
     public void registerUserOnEvent(Long eventId) {
 
-        Registration registration = new Registration();
-        registration.setEventId(eventId);
-        registration.setUserId(authParser.getId());
+        ifCurUserIsEventOwnerThrowException(eventId);
+
+        Registration registration = new Registration(eventId, authParser.getId());
 
         Event event = eventService.getById(registration.getEventId());
 
@@ -35,8 +35,16 @@ public class RegistrationService {
 
         registrationRepository.save(registrationModelToEntityMapper.toEntity(registration));
         event.setOccupiedPlaces(event.getOccupiedPlaces() + 1);
-        eventService.save(event);
 
+    }
+
+    private void ifCurUserIsEventOwnerThrowException(Long eventId) {
+        Event foundEvent = eventService.getById(eventId);
+
+        if (foundEvent.getOwnerId()
+                .equals(authParser.getId())) {
+            throw new IllegalArgumentException("You cannot be registered on this event, because you are event owner!");
+        }
     }
 
     public void cancelRegistration(Long eventId) {

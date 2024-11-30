@@ -49,7 +49,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-//    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getById(@PathVariable(name = "userId") Long id) {
 

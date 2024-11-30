@@ -8,9 +8,11 @@ import jokardoo.eventmanager.domain.location.EventLocation;
 import jokardoo.eventmanager.domain.user.Role;
 import jokardoo.eventmanager.exceptions.IncorrectDateException;
 import jokardoo.eventmanager.exceptions.IncorrectLocationCapacityException;
+import jokardoo.eventmanager.kafka.event.EventChangesSender;
 import jokardoo.eventmanager.mapper.event.EventModelToEntityMapper;
 import jokardoo.eventmanager.repository.EventRepository;
 import jokardoo.eventmanager.service.utils.AuthenticationParser;
+import jokardoo.eventmanager.service.utils.EventKafkaChangesCreator;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,10 @@ public class EventService {
     private final EventRepository eventRepository;
 
     private final AuthenticationParser authParser;
+
+    private final EventChangesSender eventChangesSender;
+
+    private final EventKafkaChangesCreator eventKafkaChangesCreator;
 
     private final EventModelToEntityMapper eventModelToEntityMapper;
 
@@ -49,6 +55,8 @@ public class EventService {
 
         Event createdEvent = eventModelToEntityMapper.toModel(createdEventEntity);
 
+        eventChangesSender.sendEvent(eventKafkaChangesCreator.createNewEvent(createdEvent));
+
         logger.info("INFO: Event was created!");
 
         return createdEvent;
@@ -64,8 +72,19 @@ public class EventService {
 
     public void save(Event event) {
 
-        eventRepository.save(eventModelToEntityMapper.toEntity(event));
+        Long eventId = event.getId();
+        if (eventRepository.existsById(eventId)) {
 
+            Event oldEvent = eventModelToEntityMapper.toModel(
+                    eventRepository.findById(eventId).get());
+
+            EventEntity savedEventEntity = eventRepository.save(eventModelToEntityMapper.toEntity(event));
+            Event savedEvent = eventModelToEntityMapper.toModel(savedEventEntity);
+
+            eventChangesSender.sendEvent(
+                    eventKafkaChangesCreator.createEventChangeNotification(oldEvent, savedEvent)
+            );
+        }
     }
 
     public Event update(Event eventToUpdate, Long eventId) {
@@ -74,19 +93,35 @@ public class EventService {
 
         Event foundEvent = eventModelToEntityMapper
                 .toModel(eventRepository
-                                .findById(eventId)
-                                .orElseThrow(() ->
-                                        new IllegalArgumentException("Event with id = " + eventId + " not found!")));
+                        .findById(eventId)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException("Event with id = " + eventId + " not found!")));
+
+        Event foundEventClone = getEventClone(foundEvent);
 
         areOldEventCanBeUpdatedToNewEventFullCheck(foundEvent, eventToUpdate);
-
         updateOldEventFieldsToNewValues(foundEvent, eventToUpdate);
 
-        EventEntity updatedEvent = eventRepository.save(eventModelToEntityMapper.toEntity(foundEvent));
+        EventEntity updatedEventEntity = eventRepository.save(eventModelToEntityMapper.toEntity(foundEvent));
 
         logger.info("INFO: Event update success.");
 
-        return eventModelToEntityMapper.toModel(updatedEvent);
+        Event updatedEvent = eventModelToEntityMapper.toModel(updatedEventEntity);
+
+        eventChangesSender.sendEvent(eventKafkaChangesCreator
+                .createEventChangeNotification(foundEventClone, updatedEvent));
+
+        return updatedEvent;
+    }
+
+    private Event getEventClone(Event original) {
+
+        try {
+            return (Event) original.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public void cancelEvent(Long id) {
@@ -94,19 +129,35 @@ public class EventService {
 
         Event event = eventModelToEntityMapper.toModel(eventRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Event with id = " + id + " not found!")));
 
+        checkAuthorityToCancelEventOrElseThrow(event);
+        checkEventStatusToCancel(event);
+
+        eventChangesSender.sendEvent(eventKafkaChangesCreator.cancelEventNotification(event));
+
+        event.setStatus(EventStatus.CANCELLED);
+
+        eventRepository.save(eventModelToEntityMapper.toEntity(event));
+
+        logger.info("INFO: Event with id = '" + event.getId() + "' was cancelled!");
+    }
+
+    private void checkEventStatusToCancel(Event event) {
         switch (event.getStatus()) {
             case CANCELLED -> throw new IllegalArgumentException("Event is already cancelled!");
             case FINISHED -> throw new IllegalArgumentException("Event is already finished!");
         }
+    }
 
+    private void checkAuthorityToCancelEventOrElseThrow(Event event) {
         if (authParser.getRole().equals(Role.ADMIN)
                 || authParser.getId().equals(event.getOwnerId())) {
-            event.setStatus(EventStatus.CANCELLED);
 
             logger.info("INFO: The cancellation was successful");
-
-        } else
+        } else {
+            logger.info("WARN: Event cant be cancelled, because current user hasn't role ADMIN, or he is not a event owner!");
             throw new IllegalStateException("To cancel an event, you must have the role admin or be the organizer of the event!");
+
+        }
     }
 
     public List<Event> getFilteredEvents(EventSearchRequest request) {
